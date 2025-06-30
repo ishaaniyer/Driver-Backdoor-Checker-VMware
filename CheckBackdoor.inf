@@ -1,0 +1,62 @@
+;
+; CheckBackdoor.inf
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System ; TODO: specify appropriate Class
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
+Provider    = %ManufacturerName%
+CatalogFile = CheckBackdoor.cat
+DriverVer   = ; TODO: set DriverVer in stampinf property pages
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+CheckBackdoor.sys = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$.10.0...16299 ; %13% support introduced in build 16299
+
+[Standard.NT$ARCH$.10.0...16299]
+%CheckBackdoor.DeviceDesc% = CheckBackdoor_Device, Root\CheckBackdoor ; TODO: edit hw-id
+
+[CheckBackdoor_Device.NT]
+CopyFiles = File_Copy
+
+[File_Copy]
+CheckBackdoor.sys
+
+;-------------- Service installation
+[CheckBackdoor_Device.NT.Services]
+AddService = CheckBackdoor,%SPSVCINST_ASSOCSERVICE%, CheckBackdoor_Service_Inst
+
+; -------------- CheckBackdoor driver install sections
+[CheckBackdoor_Service_Inst]
+DisplayName    = %CheckBackdoor.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\CheckBackdoor.sys
+
+[CheckBackdoor_Device.NT.Wdf]
+KmdfService = CheckBackdoor, CheckBackdoor_wdfsect
+
+[CheckBackdoor_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE = 0x00000002
+ManufacturerName = "<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+DiskName = "CheckBackdoor Installation Disk"
+CheckBackdoor.DeviceDesc = "CheckBackdoor Device"
+CheckBackdoor.SVCDESC = "CheckBackdoor Service"
